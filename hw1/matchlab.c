@@ -90,16 +90,22 @@ char* aMode(char* str){
 }
 
 short isCap(char ch){
-  return 0;
+  if(ch >= 'A' || ch <= 'Z')
+    return 1;
+  else
+    return 0;
 }
 
 char* bMode(char* str){
+  //printf("In B");
   char currChar = str[0];
   int i = 0;
   short region = 0;
   short isMatch = 1;
   int charCounter = 0;
-  char* x = malloc(6); // variable for stashing digit sequence
+  //printf("Allocating x");
+  char* x = malloc(8 * sizeof(char)); // variable for stashing digit sequence
+  //printf("X Allocated");
   short xNum = 1;
   int xInd = 2;
 
@@ -114,8 +120,9 @@ char* bMode(char* str){
 	  break;
 	}
 	else{
+	  printf("passed 0 region\n");
 	  region++;
-	  *x = currChar; 
+	  x[0] = currChar; 
 	  charCounter = 1;
 	}
       }
@@ -123,8 +130,8 @@ char* bMode(char* str){
     else if (region == 1){ // decimal sequence/x sequence
       if(isDig(currChar)){
 	charCounter++;
-	*x = currChar;
-	x++;
+	x[xNum] = currChar;
+	//x++;
 	xNum++;
 
 	if(xNum > 5){ // We need this check to avoid segmentation faults
@@ -138,6 +145,7 @@ char* bMode(char* str){
 	  break;
 	}
 	else{
+	  printf("passed 1 region\n");
 	  region++;
 	  charCounter = 1;
 	}
@@ -149,10 +157,12 @@ char* bMode(char* str){
       }
       else{
 	if(charCounter < 2 || charCounter > 5 || currChar != x[0]){
+	  printf("%s\n", x);
 	  isMatch = 0;
 	  break;
 	}
 	else{
+	  printf("passed 2 region\n");
 	  charCounter = 1;
 	  region++;
 	}
@@ -164,11 +174,13 @@ char* bMode(char* str){
 	xInd += 2; // Will I get a seg fault from this??
       }
       else{
-	if(xInd > xNum || !isCap(currChar)){ // Invalid
-	  isMatch == 0;
+	if(!isCap(currChar)){ // Invalid
+	  printf("%d, %d\n", xNum, xInd);
+	  isMatch = 0;
 	  break;
 	}
 	else{
+	  printf("passed 3 region\n");
 	  region++;
 	}
       }
@@ -187,13 +199,103 @@ char* bMode(char* str){
     i++;
     currChar = str[i];
   }
+
+  if(isMatch == 1){
+    // Replacement step
+    currChar = str[0];
+    i = 0;
+    char* newStr = malloc(2*(i+1)*sizeof(char)); // Initilize a new string with twice the elements of the input
+    int newStrInd = 0;
+
+    while(currChar != 0){
+      newStr[newStrInd] = currChar;
+      char insert = (i % 8) + 48; // digits start at 48 on the ASCII table
+      newStr[newStrInd+1] = insert;
+
+      newStrInd += 2;
+      i++;
+      currChar = str[i];
+    }
+
+    return newStr;
+  }
+  else
+    return "";
 }
 
 char* cMode(char* str){
+  int charCounter = 0;
+  char currChar = str[0];
+  int i = 0;
+  short region = 0;
+  short isMatch = 1;
+  char* X = malloc(64); // Probably should come up with a more robust solution than this...
+  int xInd = 1;
+  
+  while(currChar != 0){
+    if(region == 0){
+      if(currChar == 'b'){
+	charCounter++;
+      }
+      else{
+	if(charCounter % 2 == 0 || !isCap(currChar)){
+	  isMatch = 0;
+	  break;
+	}
+	else{
+	  region++;
+	  X[0] = currChar;
+	  charCounter = 1;
+	}
+      }
+    }
+    else if(region == 1){
+      if(isCap(currChar)){
+	charCounter++;
+	X[xInd] = currChar;
+	xInd++;
+      }
+      else{
+	if(charCounter % 2 == 0 || currChar != 'x'){
+	  isMatch = 0;
+	  break;
+	}
+	else{
+	  region++;
+	  charCounter == 1;
+	}
+      }
+    }
+    else if(region == 2){
+      if(currChar == 'x'){
+	charCounter++;
+      }
+      else{
+	if(charCounter > 2 || currChar != X[xInd-1]){
+	  isMatch = 0;
+	  break;
+	}
+	else{
+	  region++;
+	  xInd--;
+	  charCounter = 1;
+	}
+      }
+    }
+    else if(region == 3){
 
+    }
+    else if(region == 4){
+
+    }
+
+    i++;
+    currChar = str[i];
+  }
 }
 
 int main(int argc, char** argv){
+  printf("Beginning Execution\n");
   if(argc != 3 && argc != 4){
     printf("ERROR: Incorrect number of arguements!\n");
     printf("Number of args: %d\n", argc);
@@ -223,18 +325,29 @@ int main(int argc, char** argv){
     tSelect = 1;
   }
 
+  printf("Parameters parsed\n");
+  printf("Option: %c\n", option);
+  printf("Str: %s\n", str);
+
+
   char* res;
   if(option == 'a'){
-    char* res = aMode(str);
+    res = aMode(str);
     printf("A mode\n");
   }
   else if(option == 'b'){
-
+    //printf("Entering B\n");
+    res = bMode(str);
+    printf("B mode\n");
   }
   else if(option == 'c'){
-
+    res = "ERROR";
   }
+  else
+    res = "ERROR";
 
+  //printf("End of processing\n");
+  
   if(res[0] == 0)
      printf("Invalid\n");
   else
