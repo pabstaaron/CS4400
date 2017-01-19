@@ -8,7 +8,7 @@
 #include<stdlib.h>
 
 /*
- * Determines wheter a char is a digit or not.
+ * Determines whether a char is a digit or not.
  * 1 if true
  * 0 otherwise
  */
@@ -89,6 +89,10 @@ char* aMode(char* str){
   }
 }
 
+short isCap(char ch){
+  return 0;
+}
+
 char* bMode(char* str){
   char currChar = str[0];
   int i = 0;
@@ -97,6 +101,7 @@ char* bMode(char* str){
   int charCounter = 0;
   char* x = malloc(6); // variable for stashing digit sequence
   short xNum = 1;
+  int xInd = 2;
 
   while(currChar != 0){ // Spin through until we hit a null ptr
     if(region == 0){ // g sequence
@@ -148,15 +153,35 @@ char* bMode(char* str){
 	  break;
 	}
 	else{
-	  
+	  charCounter = 1;
+	  region++;
 	}
       }
     }
     else if(region == 3){ // even positioned x sequnce
       // Same as even numbered indexes in x
+      if(currChar == x[xInd]){
+	xInd += 2; // Will I get a seg fault from this??
+      }
+      else{
+	if(xInd > xNum || !isCap(currChar)){ // Invalid
+	  isMatch == 0;
+	  break;
+	}
+	else{
+	  region++;
+	}
+      }
     }
     else if(region == 4){ // odd number of uppercase letters
       // Odd number of uppercase letters
+      if(isCap(currChar)){
+	charCounter++;
+      }
+      else{ // Auto fail
+	isMatch = 0;
+	break;
+      }
     }
 
     i++;
