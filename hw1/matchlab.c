@@ -8,6 +8,19 @@
 #include<stdlib.h>
 
 /*
+ * Determines wheter a char is a digit or not.
+ * 1 if true
+ * 0 otherwise
+ */
+short isDig(char c){
+  if(c == '0' || c == '1' || c == '2' || c == '3' || c == '4' || c == '5'
+     || c == '6' || c == '7' || c == '8' || c == '9')
+    return 1;
+  else
+    return 0;
+}
+
+/*
  * Returns a reformated str if the input matches the pattern.
  * Returns a string containing only a null terminator otherwise.
  */
@@ -19,24 +32,60 @@ char* aMode(char* str){
   int charCounter = 0; // Used for counting how many times a char occurs
   int region = 0; // 0 for m, 1 for v, 2 for numerical
 
+  char* returnVal = "";
+  
   // Loop through all the chars in the array
   while(currChar != 0){ // Keep going until we hit a null terminator
     if(region == 0){
-      if(i == 0 && currChar != m){ // Bail if not valid
+      if(currChar == 'm'){
+	charCounter++;
+      }
+      else{
+	if(charCounter % 2 == 0 || currChar != 'v'){ // Even number of m's, invalid
+	  isMatch = 0;
+	  break;
+	}
+	else{
+	  charCounter = 1; // We know there's a V at this point
+	  region++;
+	}
+      }
+    }
+    else if(region == 1){
+      if(currChar == 'v'){
+	charCounter++;
+      }
+      else{
+	if(charCounter <= 1 || !isDig(currChar)){
+	  isMatch = 0;
+	  break;
+	}
+	else{
+	  region++;
+	  charCounter = 1;
+	}
+      }
+    }
+    else{
+      if(isDig(currChar)){
+	charCounter++;
+      }
+      else{
 	isMatch = 0;
 	break;
       }
-      
-    }
-    else if(region == 1){
-
-    }
-    else{
-
     }
 
     i = i+1;
     currChar = str[i];
+  }
+
+  // Need one final check to make sure that we had the correct number of digits
+  if((charCounter >= 1 && charCounter <= 3) && isMatch == 1){ // The string is a match
+    return str;
+  }
+  else{ // The string is not a match
+    return "";
   }
 }
 
@@ -55,20 +104,20 @@ int main(int argc, char** argv){
     return 1;
   }
 
-  char* option;
+  char option;
   char* str;
   short tSelect = 0;
 
   if(argc == 3){ // If there's no -t flag
-    option = argv[1];
+    option = argv[1][1];
     str = argv[2];
   }
   else{ // If there is a -t flag
     str = argv[4];
-    if(argv[1] == "-t")
-      option = argv[2];
-    else if(argv[2] == "-t")
-      option = argv[1];
+    if(argv[1][1] == 't')
+      option = argv[2][1];
+    else if(argv[2][1] == 't')
+      option = argv[1][1];
     else{
       printf("ERROR: Invalid argument!\n");
       printf("%s\n", argv[1]);
@@ -78,13 +127,20 @@ int main(int argc, char** argv){
     tSelect = 1;
   }
 
-  if(option == "-a"){
+  char* res;
+  if(option == 'a'){
+    char* res = aMode(str);
+    printf("A mode\n");
+  }
+  else if(option == 'b'){
 
   }
-  else if(option == "-b"){
+  else if(option == 'c'){
 
   }
-  else if(option == "-c"){
 
-  }
+  if(res[0] == 0)
+     printf("Invalid\n");
+  else
+    printf("%s\n", res);
 } 
