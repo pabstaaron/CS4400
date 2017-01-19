@@ -90,7 +90,78 @@ char* aMode(char* str){
 }
 
 char* bMode(char* str){
+  char currChar = str[0];
+  int i = 0;
+  short region = 0;
+  short isMatch = 1;
+  int charCounter = 0;
+  char* x = malloc(6); // variable for stashing digit sequence
+  short xNum = 1;
 
+  while(currChar != 0){ // Spin through until we hit a null ptr
+    if(region == 0){ // g sequence
+      if(currChar == 'g'){
+	charCounter++;
+      }
+      else{
+	if(charCounter < 4 || !isDig(currChar)){
+	  isMatch = 0;
+	  break;
+	}
+	else{
+	  region++;
+	  *x = currChar; 
+	  charCounter = 1;
+	}
+      }
+    }
+    else if (region == 1){ // decimal sequence/x sequence
+      if(isDig(currChar)){
+	charCounter++;
+	*x = currChar;
+	x++;
+	xNum++;
+
+	if(xNum > 5){ // We need this check to avoid segmentation faults
+	  isMatch = 0;
+	  break;
+	}
+      }
+      else{
+	if(charCounter > 3 || currChar != 'n'){ // Invalid
+	  isMatch = 0;
+	  break;
+	}
+	else{
+	  region++;
+	  charCounter = 1;
+	}
+      }
+    }
+    else if(region == 2){ // n sequence
+      if(currChar == 'n'){
+	charCounter++;
+      }
+      else{
+	if(charCounter < 2 || charCounter > 5 || currChar != x[0]){
+	  isMatch = 0;
+	  break;
+	}
+	else{
+	  
+	}
+      }
+    }
+    else if(region == 3){ // even positioned x sequnce
+      // Same as even numbered indexes in x
+    }
+    else if(region == 4){ // odd number of uppercase letters
+      // Odd number of uppercase letters
+    }
+
+    i++;
+    currChar = str[i];
+  }
 }
 
 char* cMode(char* str){
