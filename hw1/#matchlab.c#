@@ -355,7 +355,7 @@ char* cMode(char* str){
 }
 
 int main(int argc, char** argv){
-  printf("Beginning Execution\n");
+  //printf("Beginning Execution\n");
   if(argc != 3 && argc != 4){
     printf("ERROR: Incorrect number of arguements!\n");
     printf("Number of args: %d\n", argc);
