@@ -76,7 +76,8 @@ char* aMode(char* str){
       }
     }
 
-    i = i+1;
+    printf("%d\n", currChar);
+    i++;
     currChar = str[i];
   }
 
@@ -244,6 +245,7 @@ char* cMode(char* str){
 	}
 	else{
 	  region++;
+	  printf("Region 1 passed\n");
 	  X[0] = currChar;
 	  charCounter = 1;
 	}
@@ -261,6 +263,7 @@ char* cMode(char* str){
 	  break;
 	}
 	else{
+	  printf("region 2 passed");
 	  region++;
 	  charCounter == 1;
 	}
@@ -276,6 +279,7 @@ char* cMode(char* str){
 	  break;
 	}
 	else{
+	  printf("Region 2 Passed");
 	  region++;
 	  xInd--;
 	  charCounter = 1;
@@ -283,15 +287,64 @@ char* cMode(char* str){
       }
     }
     else if(region == 3){
-
+      if(currChar == X[xInd-1]){
+	xInd--;
+      }
+      else{
+	if(xInd < 0 || !isDig(currChar)){
+	  isMatch = 0;
+	  break;
+	}
+	else{
+	  region++;
+	  printf("Region 3 passed");
+	}
+      }
     }
     else if(region == 4){
-
+      if(isDig(currChar)){
+	charCounter++;
+      }
+      else{
+	isMatch = 0; // Auto-fail
+      }
     }
-
+     
     i++;
     currChar = str[i];
   }
+
+  if(charCounter > 3)
+    isMatch = 0;
+
+  if(isMatch == 1){
+    // Run shift sequence
+    currChar = str[0];
+    char* newStr = malloc(2*i);
+    int newStrInd = 0;
+    i = 0;
+
+    printf("%d\n", isMatch);
+    while(currChar != 0){
+      if(currChar == 'G'){
+	newStr[newStrInd] = 'G';
+	newStr[newStrInd] = 'G';
+	newStr[newStrInd] = 'G';
+	newStrInd += 3;
+      }
+      else{
+	newStr[newStrInd] = currChar;
+	newStrInd++;
+      }
+      
+      i++;
+      currChar = str[i];
+    }
+    return newStr;
+  }
+  else
+    return "";
+  
 }
 
 int main(int argc, char** argv){
@@ -341,7 +394,8 @@ int main(int argc, char** argv){
     printf("B mode\n");
   }
   else if(option == 'c'){
-    res = "ERROR";
+    printf("Entering C\n");
+    res = cMode(str);
   }
   else
     res = "ERROR";
