@@ -76,7 +76,7 @@ char* aMode(char* str){
       }
     }
 
-    printf("%d\n", currChar);
+    //printf("%d\n", currChar);
     i++;
     currChar = str[i];
   }
@@ -90,6 +90,9 @@ char* aMode(char* str){
   }
 }
 
+/*
+ * Returns true if the input is a capital letter. False otherwise.
+ */
 short isCap(char ch){
   if(ch >= 'A' && ch <= 'Z')
     return 1;
@@ -121,7 +124,7 @@ char* bMode(char* str){
 	  break;
 	}
 	else{
-	  printf("passed 0 region\n");
+	  //printf("passed 0 region\n");
 	  region++;
 	  x[0] = currChar; 
 	  charCounter = 1;
@@ -146,7 +149,7 @@ char* bMode(char* str){
 	  break;
 	}
 	else{
-	  printf("passed 1 region\n");
+	  //printf("passed 1 region\n");
 	  region++;
 	  charCounter = 1;
 	}
@@ -158,12 +161,12 @@ char* bMode(char* str){
       }
       else{
 	if(charCounter < 2 || charCounter > 5 || currChar != x[0]){
-	  printf("%s\n", x);
+	  //printf("%s\n", x);
 	  isMatch = 0;
 	  break;
 	}
 	else{
-	  printf("passed 2 region\n");
+	  //printf("passed 2 region\n");
 	  charCounter = 1;
 	  region++;
 	}
@@ -176,12 +179,12 @@ char* bMode(char* str){
       }
       else{
 	if(!isCap(currChar)){ // Invalid
-	  printf("%d, %d\n", xNum, xInd);
+	  //printf("%d, %d\n", xNum, xInd);
 	  isMatch = 0;
 	  break;
 	}
 	else{
-	  printf("passed 3 region\n");
+	  //printf("passed 3 region\n");
 	  region++;
 	}
       }
@@ -355,62 +358,60 @@ char* cMode(char* str){
 }
 
 int main(int argc, char** argv){
-  printf("Beginning Execution\n");
-  if(argc != 3 && argc != 4){
-    printf("ERROR: Incorrect number of arguements!\n");
-    printf("Number of args: %d\n", argc);
-    return 1;
-  }
 
-  char option;
-  char* str;
-  short tSelect = 0;
+  char option; // a, b, or c
+  short tSelect = 0; // 1 if -t present
+  int strStart; // The starting index of input strings in argv1
 
-  if(argc == 3){ // If there's no -t flag
-    option = argv[1][1];
-    str = argv[2];
-  }
-  else{ // If there is a -t flag
-    str = argv[4];
-    if(argv[1][1] == 't')
+  // Parse parameters
+  if(argv[1][0] == '-'){
+    if(argv[1][1] == 't'){
+      tSelect = 1;
       option = argv[2][1];
-    else if(argv[2][1] == 't')
-      option = argv[1][1];
-    else{
-      printf("ERROR: Invalid argument!\n");
-      printf("%s\n", argv[1]);
-      printf("%s\n", argv[2]);
-      return 1;
+      strStart = 3;
     }
-    tSelect = 1;
+    else{
+      option = argv[1][1];
+      if(argv[2][1] == 't'){
+	tSelect = 1;
+	strStart = 3;
+      }
+      else{
+	strStart = 2;
+      }
+    }
+  }
+  else{
+    option = 'a';
+    strStart = 1;
   }
 
-  printf("Parameters parsed\n");
-  printf("Option: %c\n", option);
-  printf("Str: %s\n", str);
+  // Loop through all input strings and run specified pattern check
+  int i;
+  for(i = strStart; i < argc; i++){
+    char* res;
+    
+    if(option == 'a'){
+      res = aMode(argv[i]);
+    }
+    else if(option == 'b'){
+      res = bMode(argv[i]);
+    }
+    else if(option == 'c'){
+      res = cMode(argv[i]);
+    }
 
-
-  char* res;
-  if(option == 'a'){
-    res = aMode(str);
-    printf("A mode\n");
+    if(res[0] == 0){ // Not a match
+      if(!tSelect)
+	printf("no\n");
+    }
+    else{ // Match
+      if(!tSelect){
+	printf("yes\n");
+      }
+      else{
+	printf("%s\n", res);
+      }
+    }
   }
-  else if(option == 'b'){
-    //printf("Entering B\n");
-    res = bMode(str);
-    printf("B mode\n");
-  }
-  else if(option == 'c'){
-    printf("Entering C\n");
-    res = cMode(str);
-  }
-  else
-    res = "ERROR";
-
-  //printf("End of processing\n");
-  
-  if(res[0] == 0)
-     printf("Invalid\n");
-  else
-    printf("%s\n", res);
 } 

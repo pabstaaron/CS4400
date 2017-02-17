@@ -169,7 +169,7 @@ static pixel weighted_combo_two(int dim, int i, int j, pixel *src)
   current_pixel.red = (unsigned short) (red / num_neighbors);
   current_pixel.green = (unsigned short) (green / num_neighbors);
   current_pixel.blue = (unsigned short) (blue / num_neighbors);
-  printf("%d", num_neighbors);
+  // printf("%d", num_neighbors);
   
   return current_pixel;
 }
