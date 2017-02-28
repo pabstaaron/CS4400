@@ -106,12 +106,12 @@ void complex_four(int dim, pixel *src, pixel *dest) // Likely memory aliasing oc
 		  (int)currPix.green +
 	          (int)currPix.blue) / 3;
 
-      dest[index].red = value;
-      
-      dest[index].green = value;
-      
-      dest[index].blue = value;
+      pixel newPix;
+      newPix.red = value;
+      newPix.green = value;
+      newPix.blue = value;
 
+      dest[index] = newPix;
     }
   }
 }
