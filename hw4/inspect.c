@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <elf.h>
+#include <string.h> // I can't be using this when I turn it in
 
 /* Given the in-memory ELF header pointer as `ehdr` and a section
    header pointer as `shdr`, returns a pointer to the memory that
@@ -16,8 +17,58 @@
 static void check_for_shared_object(Elf64_Ehdr *ehdr);
 static void fail(char *reason, int err_code);
 
-void extractFunctions(Elf64_Ehdr* ehdr){
+// Returns a pointer to the section header of the given section name.
+Elf64_Shdr* getSectionByName(Elf64_Ehdr* ehdr, char* name){
+  Elf64_Shdr *shdrs = (void*)ehdr + ehdr->e_shoff; // Gets the position of section header information.
 
+  // Get the location of the string table, which will contain the human-readable section names.
+  char* strs = (void*)ehdr+shdrs[ehdr->e_shstrndx].sh_offset;
+  
+  // Loop through all of the section headers
+  for(int i = 0; i < ehdr->e_shnum; i++){
+    // shdrs[i].sh_name contains the offset into the str table where the section name can be found.
+    //printf("%s\n", strs + shdrs[i].sh_name);
+
+    // Todo - What does strcmp return and when?
+    if(strcmp(strs + shdrs[i].sh_name, name) == 0){ // If this section is the one we're looking for.
+      printf("Section Name: %s\n", strs + shdrs[i].sh_name);
+      printf("Offset: %d\n", sizeof(Elf64_Shdr) * i);
+      return shdrs + sizeof(Elf64_Shdr) * i;
+    }
+  }
+}
+
+void parseSectionNames(Elf64_Ehdr* ehdr){
+  Elf64_Shdr *shdrs = (void*)ehdr + ehdr->e_shoff; // Gets the position of section header information.
+
+  // Get the location of the string table, which will contain the human-readable section names.
+  char* strs = (void*)ehdr+shdrs[ehdr->e_shstrndx].sh_offset;
+  
+  // Loop through all of the section headers
+  for(int i = 0; i < ehdr->e_shnum; i++){
+    // shdrs[i].sh_name contains the offset into the str table where the section name can be found.
+    printf("%s\n", strs + shdrs[i].sh_name);
+  }
+}
+
+void parseFunctionNames(Elf64_Ehdr* ehdr){
+  // Get the location of the dynsym section
+  Elf64_Shdr *dynsym_shdr = getSectionByName(ehdr, ".dynsym");
+  printf("%p\n", dynsym_shdr);
+  
+  Elf64_Sym *syms = AT_SEC(ehdr, dynsym_shdr);
+  //printf("Made it past first AT_SEC call.");
+  
+  // Get the location of the string table, which will contain the function names
+  char *strs = AT_SEC(ehdr, getSectionByName(ehdr, ".dynstr"));
+  
+  int i = 0, count = dynsym_shdr->sh_size / sizeof(Elf64_Sym);
+  printf("%d\n", dynsym_shdr->sh_size);
+  
+  // Walk through the symbol table
+  for (i = 0; i < count; i++) {
+    printf("%s\n", strs + syms[i].st_name);
+  }
 }
 
 int main(int argc, char **argv) {
@@ -50,6 +101,7 @@ int main(int argc, char **argv) {
   check_for_shared_object(ehdr);
 
   /* Add a call to your work here */
+  parseFunctionNames(ehdr);
 
   return 0;
 }
